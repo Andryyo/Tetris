@@ -20,6 +20,7 @@ public class Tetris_view extends View {
 	private final byte columns = 20;
 	private int Score;
 	private Timer timer = null;
+	private MoveTask strafetask;
 	private Figure main_figure;
 	private Figure next_figure;
 	private byte new_figure;
@@ -40,7 +41,7 @@ public class Tetris_view extends View {
 	public void init()
 	{
 		timer  = new Timer();
-		Move task = new Move();
+		MoveTask task = new MoveTask(MoveTask.MOVE_DOWN);
 		pool = new byte[rows+8][columns+8];
 		game_is_over = false;
 		new_figure = 0;
@@ -94,7 +95,9 @@ public class Tetris_view extends View {
 	}
 	public boolean onTouchEvent(MotionEvent me)
 	{
-		if ((me.getAction()==MotionEvent.ACTION_DOWN)&&(!game_is_over))
+		if (!game_is_over)
+		{
+		if (me.getAction()==MotionEvent.ACTION_DOWN)
 		{
 			action = true;
 			float x = me.getX();
@@ -104,37 +107,85 @@ public class Tetris_view extends View {
 			if (y<3*height/4)
 			{
 				if (x<=width/5)
-					main_figure.move_left(pool);
+				{
+					strafetask = new MoveTask(MoveTask.MOVE_LEFT);
+					timer.schedule(strafetask, 0, 200);
+				}
 				else if (x>=4*width/5)
-					main_figure.move_right(pool); 
+				{
+					strafetask = new MoveTask(MoveTask.MOVE_RIGHT);
+					timer.schedule(strafetask, 0, 200);
+				} 
 				else
-					main_figure.rotate(pool);
+				{
+					strafetask = new MoveTask(MoveTask.MOVE_ROTATE);
+					timer.schedule(strafetask, 0, 400);
+				} 
 			}
-				else 
-					if (new_figure == 0) main_figure.drop(pool); 
+			else 
+				{
+					strafetask = new MoveTask(MoveTask.MOVE_DROP);
+					timer.schedule(strafetask, 0);
+				} 
 			action = false;
 		invalidate();
 		}
+		if (me.getAction()==MotionEvent.ACTION_UP)
+		{
+			strafetask.cancel();
+		}
+		}
 		return true;
 	}
-	private class Move extends TimerTask {
-		public void run()
+	
+	private class MoveTask extends TimerTask {
+		int move;
+		static final int MOVE_LEFT = 0;
+		static final int MOVE_ROTATE = 1;
+		static final int MOVE_RIGHT = 2;
+		static final int MOVE_DOWN = 3;
+		static final int MOVE_DROP = 4;
+		public MoveTask(int c)
 		{
-			while (action)
-				;
-			if (main_figure.down(pool) == false)
+			move = c;
+		}
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			switch (move)
 			{
-				if (new_figure == 0)
-					new_figure = 2;
-				else new_figure--;
-			}
-			if (new_figure == 1) 
-			{
-				main_figure.print(pool);
-				delete();
-				main_figure = new Figure(next_figure);
-				next_figure = new Figure();
-				new_figure = 0;
+			case MOVE_LEFT:
+				main_figure.move_left(pool);
+				break;
+			case MOVE_RIGHT:
+				main_figure.move_right(pool);
+				break;
+			case MOVE_ROTATE:
+				main_figure.rotate(pool);
+				break;
+			case MOVE_DROP:
+				main_figure.drop(pool);
+				break;
+			case MOVE_DOWN:
+				{
+				while (action)
+					;
+				if (main_figure.down(pool) == false)
+				{
+					if (new_figure == 0)
+						new_figure = 2;
+					else new_figure--;
+				}
+				if (new_figure == 1) 
+				{
+					main_figure.print(pool);
+					delete();
+					main_figure = new Figure(next_figure);
+					next_figure = new Figure();
+					new_figure = 0;
+				}
+				postInvalidate();
+				}
 			}
 			postInvalidate();
 		}
@@ -177,6 +228,7 @@ public class Tetris_view extends View {
 	}
 	void Pause()
 	{
+		if (!game_is_over)
 		if (!pause)
 		{
 			timer.cancel();
@@ -187,7 +239,7 @@ public class Tetris_view extends View {
 		{
 			timer.cancel();
 			timer = new Timer();
-			Move task = new Move();
+			MoveTask task = new MoveTask(MoveTask.MOVE_DOWN);
 			timer.schedule(task, 0, 400);
 			pause = false;
 		}
