@@ -48,6 +48,13 @@ public class MainActivity extends Activity {
 	{
 		super.onResume();
 		((Tetris_view) findViewById(R.id.tetrisview)).Pause();
+		((Tetris_view) findViewById(R.id.tetrisview)).vibrator.cancel();
 	}
 	
+	@Override
+	public void onStop()
+	{
+		super.onStop();
+		((Tetris_view) findViewById(R.id.tetrisview)).vibrator.cancel();
+	}
 }

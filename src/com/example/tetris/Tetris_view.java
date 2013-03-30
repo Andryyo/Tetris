@@ -9,6 +9,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -31,11 +32,13 @@ public class Tetris_view extends View {
 	private int block_height;
 	private int block_width;
 	private Paint paint;
+	public Vibrator vibrator;
 	public Tetris_view(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		// TODO Auto-generated constructor stub
 		init();
-	}
+		vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+		}
 
 
 	public void init()
@@ -128,6 +131,7 @@ public class Tetris_view extends View {
 					timer.schedule(strafetask, 0);
 				} 
 			action = false;
+		vibrator.vibrate(50);
 		invalidate();
 		}
 		if (me.getAction()==MotionEvent.ACTION_UP)
@@ -216,6 +220,8 @@ public class Tetris_view extends View {
 			case 3:Score+=700; break;
 			case 4:Score+=1500; break;
 			}
+			if (x!=0)
+				vibrator.vibrate(300);
 			action = false;
 			postInvalidate();
 	}	
