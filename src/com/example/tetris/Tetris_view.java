@@ -5,6 +5,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -32,6 +34,7 @@ public class Tetris_view extends View {
 	private int block_height;
 	private int block_width;
 	private Paint paint;
+	private Bitmap bitmaps[][];
 	public Vibrator vibrator;
 	public Tetris_view(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -43,6 +46,7 @@ public class Tetris_view extends View {
 
 	public void init()
 	{
+		bitmaps = loadBitmaps();
 		timer  = new Timer();
 		MoveTask task = new MoveTask(MoveTask.MOVE_DOWN);
 		pool = new byte[rows+8][columns+8];
@@ -65,6 +69,15 @@ public class Tetris_view extends View {
 		bounds = new Rect();
 		timer.schedule(task, 300, 400);
 	}	
+	private Bitmap[][] loadBitmaps()
+	{
+		Bitmap parentbitmap = BitmapFactory.decodeResource(getResources(),R.drawable.block);
+		Bitmap[][] bitmaps = new Bitmap[16][24];
+		for (int i=0;i<16;i++)
+			for (int j=0;j<24;j++)
+				bitmaps[i][j] = Bitmap.createBitmap(parentbitmap,i*16,j*16,16,16);
+		return bitmaps;
+	}
 	public void onDraw(Canvas canvas)
 	{
 		canvas.getClipBounds(bounds);
@@ -221,7 +234,7 @@ public class Tetris_view extends View {
 			case 4:Score+=1500; break;
 			}
 			if (x!=0)
-				vibrator.vibrate(300);
+				vibrator.vibrate(150);
 			action = false;
 			postInvalidate();
 	}	
