@@ -18,24 +18,29 @@ import android.view.View;
 
 public class Tetris_view extends View {
 
-	Rect bounds;
-	private final byte rows = 12;
-	private final byte columns = 20;
+	public Vibrator vibrator;
+	private Rect bounds;
+	private final int rows = 12;
+	private final int columns = 20;
 	private int Score;
 	private Timer timer = null;
 	private MoveTask strafetask;
 	private Figure main_figure;
 	private Figure next_figure;
-	private byte new_figure;
-	private byte[][] pool;
+	private int new_figure;
+	private int[][] pool;
 	private boolean action=false; 
-	private boolean game_is_over;
+	private boolean game_is_over = false;
 	private boolean pause = true;
 	private int block_height;
 	private int block_width;
 	private Paint paint;
-	private Bitmap bitmaps[][];
-	public Vibrator vibrator;
+	private Bitmap bitmaps[];
+	private boolean can_vibrate = true;
+	private Rect src = new Rect(0,0,16,16);
+	private Rect dst = new Rect();
+	
+	
 	public Tetris_view(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		// TODO Auto-generated constructor stub
@@ -49,7 +54,7 @@ public class Tetris_view extends View {
 		bitmaps = loadBitmaps();
 		timer  = new Timer();
 		MoveTask task = new MoveTask(MoveTask.MOVE_DOWN);
-		pool = new byte[rows+8][columns+8];
+		pool = new int[rows+8][columns+8];
 		game_is_over = false;
 		new_figure = 0;
 		Score = 0;
@@ -69,13 +74,13 @@ public class Tetris_view extends View {
 		bounds = new Rect();
 		timer.schedule(task, 300, 400);
 	}	
-	private Bitmap[][] loadBitmaps()
+	private Bitmap[] loadBitmaps()
 	{
 		Bitmap parentbitmap = BitmapFactory.decodeResource(getResources(),R.drawable.block);
-		Bitmap[][] bitmaps = new Bitmap[16][24];
-		for (int i=0;i<16;i++)
-			for (int j=0;j<24;j++)
-				bitmaps[i][j] = Bitmap.createBitmap(parentbitmap,i*16,j*16,16,16);
+		Bitmap[] bitmaps = new Bitmap[4];
+		for (int i=0;i<2;i++)
+			for (int j=0;j<2;j++)
+				bitmaps[i*2+j] = Bitmap.createBitmap(parentbitmap,j*32,i*32,16,16);
 		return bitmaps;
 	}
 	public void onDraw(Canvas canvas)
@@ -84,17 +89,23 @@ public class Tetris_view extends View {
 		block_height = bounds.height()/columns;
 		block_width = bounds.width()/(rows+4);
 		paint.setColor(Color.BLACK);
-		canvas.drawColor(Color.WHITE);
+		canvas.drawColor(Color.rgb(53, 53, 67));
 		for (int i=4;i<rows+4;i++)
 			for (int j=4;j<columns+4;j++)			
-				if (pool[i][j]==1) 
-					canvas.drawRect((i-4)*block_width+1, bounds.height()-(j-3)*block_height+1, 
-							(i-3)*block_width-1, bounds.height()-(j-4)*block_height-1, paint);
+				if (pool[i][j]!=0) 
+				{
+					dst.set((i-4)*block_width+1, bounds.height()-(j-3)*block_height+1, 
+									(i-3)*block_width-1, bounds.height()-(j-4)*block_height-1);
+					canvas.drawBitmap(bitmaps[pool[i][j]-1], src, dst, paint);
+				}
 		for (int i=0;i<4;i++) 
-			canvas.drawRect((main_figure.data[i][0]+main_figure.x-4)*block_width+1, 
-					bounds.height()-(main_figure.data[i][1]-3+main_figure.y)*block_height+1,
-					(main_figure.data[i][0]-3+main_figure.x)*block_width-1, 
-					bounds.height()-(main_figure.data[i][1]-4+main_figure.y)*block_height-1, paint);
+			{
+					dst.set((main_figure.data[i][0]+main_figure.x-4)*block_width+1, 
+							bounds.height()-(main_figure.data[i][1]-3+main_figure.y)*block_height+1,
+							(main_figure.data[i][0]-3+main_figure.x)*block_width-1, 
+							bounds.height()-(main_figure.data[i][1]-4+main_figure.y)*block_height-1);
+					canvas.drawBitmap(bitmaps[main_figure.colors[i]-1], src, dst, paint);
+			}
 		paint.setColor(Color.GRAY);
 		canvas.drawRect(block_width*rows, 0, bounds.width(), bounds.height(), paint);
 		paint.setColor(Color.BLACK);
@@ -111,7 +122,7 @@ public class Tetris_view extends View {
 	}
 	public boolean onTouchEvent(MotionEvent me)
 	{
-		if (!game_is_over)
+		if ((!game_is_over)&&(!pause))
 		{
 		if (me.getAction()==MotionEvent.ACTION_DOWN)
 		{
@@ -144,7 +155,8 @@ public class Tetris_view extends View {
 					timer.schedule(strafetask, 0);
 				} 
 			action = false;
-		vibrator.vibrate(50);
+		if (can_vibrate)
+			vibrator.vibrate(20);
 		invalidate();
 		}
 		if (me.getAction()==MotionEvent.ACTION_UP)
@@ -210,7 +222,7 @@ public class Tetris_view extends View {
 	private void delete()
 	{
 			action = true;
-			byte x = 0;
+			int x = 0;
 			boolean combo; 
 			for (int j=4;j<columns+4;j++)
 			{
@@ -233,8 +245,8 @@ public class Tetris_view extends View {
 			case 3:Score+=700; break;
 			case 4:Score+=1500; break;
 			}
-			if (x!=0)
-				vibrator.vibrate(150);
+			if ((x!=0)&&(can_vibrate))
+				vibrator.vibrate(50);
 			action = false;
 			postInvalidate();
 	}	
@@ -263,25 +275,32 @@ public class Tetris_view extends View {
 			pause = false;
 		}
 	}
+	void switch_vibration()
+	{
+		can_vibrate = !can_vibrate;
+	}
 	private class Figure {
-		private byte data[][];
+		private int colors[] = new int[4];
+		private int data[][];
 		private int x,y;
 		public Figure()
 		{
 			x = rows/2+2;
 			y = columns+3;
 			Random r = new Random();
-			byte type = (byte)r.nextInt(7);
+			int type = (int)r.nextInt(7);
 			switch (type)
 			{
-			case 0: data = new byte[][] {{1,0},{1,1},{1,2},{1,3}}; break;
-			case 1: data = new byte[][] {{0,3},{0,2},{1,2},{2,2}}; break;
-			case 2: data = new byte[][] {{1,1},{2,1},{3,1},{3,2}}; break;
-			case 3: data = new byte[][] {{1,1},{1,2},{2,1},{2,2}}; break;
-			case 4: data = new byte[][] {{0,1},{1,1},{1,2},{2,2}}; break;
-			case 5: data = new byte[][] {{0,1},{1,1},{2,1},{1,2}}; break;
-			case 6: data = new byte[][] {{0,2},{1,2},{1,1},{2,1}}; break;
+			case 0: data = new int[][] {{1,0},{1,1},{1,2},{1,3}}; break;
+			case 1: data = new int[][] {{0,3},{0,2},{1,2},{2,2}}; break;
+			case 2: data = new int[][] {{1,1},{2,1},{3,1},{3,2}}; break;
+			case 3: data = new int[][] {{1,1},{1,2},{2,1},{2,2}}; break;
+			case 4: data = new int[][] {{0,1},{1,1},{1,2},{2,2}}; break;
+			case 5: data = new int[][] {{0,1},{1,1},{2,1},{1,2}}; break;
+			case 6: data = new int[][] {{0,2},{1,2},{1,1},{2,1}}; break;
 			}
+			for (int i=0;i<4;i++)
+				colors[i] = r.nextInt(bitmaps.length)+1;
 			if (crossing(pool))
 			{
 				Game_Over();
@@ -289,36 +308,38 @@ public class Tetris_view extends View {
 		}
 		public Figure(Figure copy)
 		{
-			data = new byte[4][2];
+			data = new int[4][2];
 			for (int i=0;i<4;i++)
 			{
-			data[i][0] = copy.data[i][0];
-			data[i][1] = copy.data[i][1];
+				data[i][0] = copy.data[i][0];
+				data[i][1] = copy.data[i][1];
 			}
 			x = copy.x;
 			y = copy.y;
+			for (int i=0;i<4;i++)
+				colors[i] = copy.colors[i];
 		}
-		public boolean rotate(byte[][] pool)
+		public boolean rotate(int[][] pool)
 		{
-			byte buf;
+			int buf;
 			Figure figure = new Figure(this);
-			for (byte i = 0;i<4;i++)
+			for (int i = 0;i<4;i++)
 			{
 				buf = figure.data[i][0];
 				figure.data[i][0] = figure.data[i][1];
-				figure.data[i][1] = (byte) (3-buf);
+				figure.data[i][1] = (int) (3-buf);
 			}
 			if (!figure.crossing(pool))
-				for (byte i = 0;i<4;i++)
+				for (int i = 0;i<4;i++)
 				{
 					buf = data[i][0];
 					data[i][0] = data[i][1];
-					data[i][1] = (byte) (3-buf);
+					data[i][1] = (int) (3-buf);
 				}
 			else return false;
 			return true;
 		}
-		public boolean move_left(byte[][]pool)
+		public boolean move_left(int[][]pool)
 		{
 			x--;
 			if (crossing(pool))
@@ -326,7 +347,7 @@ public class Tetris_view extends View {
 			else return true;
 			return false;
 		}
-		public boolean move_right(byte[][] pool)
+		public boolean move_right(int[][] pool)
 		{
 			x++;
 			if (crossing(pool))
@@ -334,7 +355,7 @@ public class Tetris_view extends View {
 			else return true;
 			return false;
 		}
-		public boolean down(byte[][] pool)
+		public boolean down(int[][] pool)
 		{
 			Figure figure = new Figure(this);
 			figure.y--;
@@ -353,23 +374,23 @@ public class Tetris_view extends View {
 			else y--;
 			return true;
 		}
-		public void drop(byte[][] pool)
+		public void drop(int[][] pool)
 		{
 			do
 				y--;
 			while (!crossing(pool));
 			y++;
 		}
-		public boolean crossing(byte[][] pool)
+		public boolean crossing(int[][] pool)
 		{
 			for (int i=0;i<4;i++)
-					if (pool[data[i][0]+x][data[i][1]+y]==1) return true;
+					if (pool[data[i][0]+x][data[i][1]+y]!=0) return true;
 			return false;
 		}
-		public void print(byte[][] pool)
+		public void print(int[][] pool)
 		{
 			for (int i=0;i<4;i++)
-				pool[data[i][0]+x][data[i][1]+y]=1;
+				pool[data[i][0]+x][data[i][1]+y]=colors[i];
 		}
 	}
 }

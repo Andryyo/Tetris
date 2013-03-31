@@ -33,6 +33,11 @@ public class MainActivity extends Activity {
 		{
 			((Tetris_view) findViewById(R.id.tetrisview)).Pause();
 		}
+		if (item.getItemId()==R.id.vibration)
+		{
+			((Tetris_view) findViewById(R.id.tetrisview)).switch_vibration();
+		}
+		
 		return true;
 	}
 	
