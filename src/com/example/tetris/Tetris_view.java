@@ -31,7 +31,7 @@ public class Tetris_view extends View {
 	private int[][] pool;
 	private boolean action=false; 
 	private boolean game_is_over = false;
-	private boolean pause = true;
+	private boolean pause = false;
 	private int block_height;
 	private int block_width;
 	private Paint paint;
@@ -265,8 +265,12 @@ public class Tetris_view extends View {
 			timer.cancel();
 			pause = true;
 			postInvalidate();
-		}
-		else
+		}		
+	}
+	void unPause()
+	{
+		if (!game_is_over)
+		if (pause)
 		{
 			timer.cancel();
 			timer = new Timer();
@@ -274,6 +278,11 @@ public class Tetris_view extends View {
 			timer.schedule(task, 0, 400);
 			pause = false;
 		}
+	}
+	void switchPause()
+	{
+		if (pause) unPause();
+		else Pause();
 	}
 	void switch_vibration()
 	{

@@ -31,7 +31,7 @@ public class MainActivity extends Activity {
 		}
 		if (item.getItemId()==R.id.pause)
 		{
-			((Tetris_view) findViewById(R.id.tetrisview)).Pause();
+			((Tetris_view) findViewById(R.id.tetrisview)).switchPause();
 		}
 		if (item.getItemId()==R.id.vibration)
 		{
@@ -52,7 +52,7 @@ public class MainActivity extends Activity {
 	public void onResume()
 	{
 		super.onResume();
-		((Tetris_view) findViewById(R.id.tetrisview)).Pause();
+		((Tetris_view) findViewById(R.id.tetrisview)).unPause();
 		((Tetris_view) findViewById(R.id.tetrisview)).vibrator.cancel();
 	}
 	
