@@ -37,7 +37,7 @@ public class Tetris_view extends View {
 	private Paint paint;
 	private Bitmap bitmaps[];
 	private boolean can_vibrate = true;
-	private Rect src = new Rect(0,0,24,24);
+	private Rect src = new Rect(0,0,16,16);
 	private Rect dst = new Rect();
 	
 	
@@ -80,7 +80,7 @@ public class Tetris_view extends View {
 		Bitmap[] bitmaps = new Bitmap[15];
 		for (int i=0;i<3;i++)
 			for (int j=0;j<5;j++)
-				bitmaps[i*5+j] = Bitmap.createBitmap(parentbitmap,j*24,i*24,24,24);
+				bitmaps[i*5+j] = Bitmap.createBitmap(parentbitmap,j*16,i*16,16,16);
 		return bitmaps;
 	}
 	public void onDraw(Canvas canvas)
