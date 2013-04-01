@@ -5,6 +5,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -36,10 +37,11 @@ public class Tetris_view extends View {
 	private int block_width;
 	private Paint paint;
 	private Bitmap bitmaps[];
-	private boolean can_vibrate = true;
+	public static boolean can_vibrate = true;
 	private Rect src = new Rect(0,0,16,16);
 	private Rect dst = new Rect();
-	
+    long down_speed = 300;
+
 	
 	public Tetris_view(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -72,7 +74,7 @@ public class Tetris_view extends View {
 		main_figure = new Figure();
 		paint = new Paint();
 		bounds = new Rect();
-		timer.schedule(task, 300, 400);
+		timer.schedule(task, 300, down_speed);
 	}	
 	private Bitmap[] loadBitmaps()
 	{
@@ -146,7 +148,7 @@ public class Tetris_view extends View {
 				else
 				{
 					strafetask = new MoveTask(MoveTask.MOVE_ROTATE);
-					timer.schedule(strafetask, 0, 400);
+					timer.schedule(strafetask, 0, 2*down_speed);
 				} 
 			}
 			else 
@@ -275,19 +277,22 @@ public class Tetris_view extends View {
 			timer.cancel();
 			timer = new Timer();
 			MoveTask task = new MoveTask(MoveTask.MOVE_DOWN);
-			timer.schedule(task, 0, 400);
+			timer.schedule(task, 0, down_speed);
 			pause = false;
 		}
 	}
 	void switchPause()
 	{
+        if (!game_is_over)
+        {
 		if (pause) unPause();
 		else Pause();
+        }
 	}
-	void switch_vibration()
-	{
-		can_vibrate = !can_vibrate;
-	}
+    public static void setVibration(boolean b)
+    {
+        can_vibrate = b;
+    }
 	private class Figure {
 		private int colors[] = new int[4];
 		private int data[][];
