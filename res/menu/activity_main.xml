@@ -1,4 +1,4 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+﻿<menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <item android:id="@+id/new_game" android:title="Новая игра"></item>
     <item android:id="@+id/pause" android:title="Пауза/Восстановить"></item>
 
