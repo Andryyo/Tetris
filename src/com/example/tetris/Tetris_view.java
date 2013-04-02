@@ -5,7 +5,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -261,7 +260,6 @@ public class Tetris_view extends View {
 	}
 	void Pause()
 	{
-		if (!game_is_over)
 		if (!pause)
 		{
 			timer.cancel();
@@ -271,7 +269,6 @@ public class Tetris_view extends View {
 	}
 	void unPause()
 	{
-		if (!game_is_over)
 		if (pause)
 		{
 			timer.cancel();
@@ -292,6 +289,11 @@ public class Tetris_view extends View {
     public static void setVibration(boolean b)
     {
         can_vibrate = b;
+    }
+
+    public boolean isGameOver()
+    {
+        return game_is_over;
     }
 	private class Figure {
 		private int colors[] = new int[4];

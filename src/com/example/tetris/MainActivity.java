@@ -22,7 +22,14 @@ public class MainActivity extends Activity {
 		getMenuInflater().inflate(R.menu.activity_main, menu);
 		return true;
 	}
-	
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu)
+    {
+        menu.findItem(R.id.pause).setEnabled(!((Tetris_view) findViewById(R.id.tetrisview)).isGameOver());
+        return true;
+    }
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
