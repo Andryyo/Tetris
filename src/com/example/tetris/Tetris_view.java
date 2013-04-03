@@ -12,9 +12,13 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Vibrator;
+import android.preference.PreferenceManager;
 import android.util.AttributeSet;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 
 public class Tetris_view extends View {
 
@@ -48,8 +52,15 @@ public class Tetris_view extends View {
 		// TODO Auto-generated constructor stub
 		init();
 		vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-		}
+        Tetris_view.can_vibrate = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("vibration",true);
+        Tetris_view.can_vibrate = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("scaling",false);
+    }
 
+    @Override
+    public void onLayout(boolean b,int left,int top,int right,int bottom)
+    {
+        super.onLayout(b,left,top,right,bottom);
+    }
 
 	public void init()
 	{
@@ -87,7 +98,20 @@ public class Tetris_view extends View {
 	}
 	public void onDraw(Canvas canvas)
 	{
-		canvas.getClipBounds(bounds);
+        canvas.getClipBounds(bounds);
+        if (!scaling)
+        {
+            RelativeLayout.LayoutParams ls = (RelativeLayout.LayoutParams)getLayoutParams();
+            ls.width = bounds.height()*14/20;
+            ls.addRule(RelativeLayout.CENTER_HORIZONTAL);
+            this.setLayoutParams(ls);
+        }
+        else
+        {
+            RelativeLayout.LayoutParams ls = (RelativeLayout.LayoutParams)getLayoutParams();
+            ls.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            this.setLayoutParams(ls);
+        }
 		block_height = bounds.height()/columns;
 		block_width = bounds.width()/(rows+4);
 		paint.setColor(Color.BLACK);

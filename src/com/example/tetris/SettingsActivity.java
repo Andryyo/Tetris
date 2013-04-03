@@ -27,7 +27,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         else
         if (key.equalsIgnoreCase("scaling"))
         {
-            Tetris_view.setVibration(preferences.getBoolean(key,true));
+            Tetris_view.setScaling(preferences.getBoolean(key,false));
         }
 
     }

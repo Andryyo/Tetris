@@ -14,7 +14,6 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-        Tetris_view.can_vibrate = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("vibration",true);
 	}
 
 	@Override
