@@ -36,7 +36,8 @@ public class Tetris_view extends View {
 	private int block_width;
 	private Paint paint;
 	private Bitmap bitmaps[];
-	public static boolean can_vibrate = true;
+	public static boolean can_vibrate;
+    public static boolean scaling;
 	private Rect src = new Rect(0,0,16,16);
 	private Rect dst = new Rect();
     long down_speed = 300;
@@ -289,6 +290,11 @@ public class Tetris_view extends View {
     public static void setVibration(boolean b)
     {
         can_vibrate = b;
+    }
+
+    public static void setScaling(boolean b)
+    {
+        scaling = b;
     }
 
     public boolean isGameOver()

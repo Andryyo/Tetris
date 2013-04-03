@@ -1,9 +1,6 @@
 package com.example.tetris;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
@@ -25,8 +22,14 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
     {
         if (key.equalsIgnoreCase("vibration"))
         {
-            Tetris_view.setVibration(preferences.getBoolean(key, true));
+            Tetris_view.setVibration(preferences.getBoolean(key,true));
         }
+        else
+        if (key.equalsIgnoreCase("scaling"))
+        {
+            Tetris_view.setVibration(preferences.getBoolean(key,true));
+        }
+
     }
 
     @Override
@@ -40,6 +43,6 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
     public void onPause()
     {
         super.onPause();
-        getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
     }
 }

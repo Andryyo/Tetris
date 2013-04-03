@@ -6,4 +6,9 @@
         android:title="Включить вибрацию"
         android:defaultValue="true"
         />
+    <CheckBoxPreference
+        android:key="scaling"
+        android:title="Мштбрвн, т упрлс?"
+        android:defaultValue="false"
+            />
 </PreferenceScreen>

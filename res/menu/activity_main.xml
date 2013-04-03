@@ -2,5 +2,4 @@
     <item android:id="@+id/new_game" android:title="Новая игра"></item>
     <item android:id="@+id/pause" android:title="Пауза/Восстановить"></item>
     <item android:id="@+id/settings" android:title="Настройки"></item>
-
 </menu>
