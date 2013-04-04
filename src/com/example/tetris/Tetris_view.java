@@ -5,6 +5,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -14,7 +15,6 @@ import android.graphics.Rect;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
-import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +26,7 @@ public class Tetris_view extends View {
 	private Rect bounds;
 	private final int rows = 12;
 	private final int columns = 20;
-	private int Score;
+	private int score;
 	private Timer timer = null;
 	private MoveTask strafetask;
 	private Figure main_figure;
@@ -40,37 +40,35 @@ public class Tetris_view extends View {
 	private int block_width;
 	private Paint paint;
 	private Bitmap bitmaps[];
-	public static boolean can_vibrate;
-    public static boolean scaling;
+	public  boolean can_vibrate;
+    public  boolean scaling;
+    public int hightscore;
 	private Rect src = new Rect(0,0,16,16);
 	private Rect dst = new Rect();
     long down_speed = 300;
+    Context context;
 
 	
 	public Tetris_view(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		// TODO Auto-generated constructor stub
-		init();
-		vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-        Tetris_view.can_vibrate = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("vibration",true);
-        Tetris_view.can_vibrate = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("scaling",false);
-    }
-
-    @Override
-    public void onLayout(boolean b,int left,int top,int right,int bottom)
-    {
-        super.onLayout(b,left,top,right,bottom);
+        this.context = context;
+        init();
     }
 
 	public void init()
 	{
+        vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+        can_vibrate = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("vibration",true);
+        scaling = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("scaling",false);
+        hightscore = PreferenceManager.getDefaultSharedPreferences(context).getInt("hightscore", 0);
 		bitmaps = loadBitmaps();
 		timer  = new Timer();
 		MoveTask task = new MoveTask(MoveTask.MOVE_DOWN);
 		pool = new int[rows+8][columns+8];
 		game_is_over = false;
 		new_figure = 0;
-		Score = 0;
+		score = 0;
 		for (int i=4;i<rows+4;i++)
 			for (int j=4;j<columns+4;j++)
 				pool[i][j] = 0;
@@ -99,19 +97,6 @@ public class Tetris_view extends View {
 	public void onDraw(Canvas canvas)
 	{
         canvas.getClipBounds(bounds);
-        if (!scaling)
-        {
-            RelativeLayout.LayoutParams ls = (RelativeLayout.LayoutParams)getLayoutParams();
-            ls.width = bounds.height()*14/20;
-            ls.addRule(RelativeLayout.CENTER_HORIZONTAL);
-            this.setLayoutParams(ls);
-        }
-        else
-        {
-            RelativeLayout.LayoutParams ls = (RelativeLayout.LayoutParams)getLayoutParams();
-            ls.width = ViewGroup.LayoutParams.MATCH_PARENT;
-            this.setLayoutParams(ls);
-        }
 		block_height = bounds.height()/columns;
 		block_width = bounds.width()/(rows+4);
 		paint.setColor(Color.BLACK);
@@ -142,7 +127,9 @@ public class Tetris_view extends View {
 						bounds.height()-(columns-5+next_figure.data[i][1])*block_height-1, paint);
 		paint.setColor(Color.GREEN);
 		paint.setTextSize(block_height);
-		canvas.drawText(Integer.toString(Score), rows*block_width, 7*block_height, paint);
+		canvas.drawText(Integer.toString(score), rows*block_width, 7*block_height, paint);
+        canvas.drawText("HS:", rows*block_width, 8*block_height, paint);
+        canvas.drawText(Integer.toString(hightscore), rows*block_width, 9*block_height, paint);
 		if (game_is_over)	canvas.drawText("Game Over", 10, bounds.height()/2, paint);
 		if (pause)	canvas.drawText("Pause", 10, bounds.height()/2, paint);
 	}
@@ -266,11 +253,22 @@ public class Tetris_view extends View {
 			}			
 			switch (x)
 			{
-			case 1:Score+=100; break;
-			case 2:Score+=300; break;
-			case 3:Score+=700; break;
-			case 4:Score+=1500; break;
+			case 1:
+                score +=100; break;
+			case 2:
+                score +=300; break;
+			case 3:
+                score +=700; break;
+			case 4:
+                score +=1500; break;
 			}
+            if (score >hightscore)
+            {
+                hightscore = score;
+                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+                editor.putInt("hightscore", hightscore);
+                editor.commit();
+            }
 			if ((x!=0)&&(can_vibrate))
 				vibrator.vibrate(50);
 			action = false;
@@ -311,14 +309,45 @@ public class Tetris_view extends View {
 		else Pause();
         }
 	}
-    public static void setVibration(boolean b)
+    public void setVibration(boolean b)
     {
         can_vibrate = b;
     }
 
-    public static void setScaling(boolean b)
+    public void setScaling(boolean b)
     {
         scaling = b;
+        if (!b)
+        {
+            RelativeLayout.LayoutParams ls = (RelativeLayout.LayoutParams)getLayoutParams();
+            ls.width = (this.getHeight())*14/20;
+            ls.addRule(RelativeLayout.CENTER_HORIZONTAL);
+            this.setLayoutParams(ls);
+        }
+        else
+        {
+            RelativeLayout.LayoutParams ls = (RelativeLayout.LayoutParams)getLayoutParams();
+            ls.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            this.setLayoutParams(ls);
+        }
+    }
+
+    @Override
+    public void onSizeChanged(int a,int b,int c,int d)
+    {
+        if (!scaling)
+        {
+            RelativeLayout.LayoutParams ls = (RelativeLayout.LayoutParams)getLayoutParams();
+            ls.width = (this.getHeight())*14/20;
+            ls.addRule(RelativeLayout.CENTER_HORIZONTAL);
+            this.setLayoutParams(ls);
+        }
+        else
+        {
+            RelativeLayout.LayoutParams ls = (RelativeLayout.LayoutParams)getLayoutParams();
+            ls.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            this.setLayoutParams(ls);
+        }
     }
 
     public boolean isGameOver()

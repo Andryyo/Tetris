@@ -11,4 +11,9 @@
         android:title="Мштбрвн, т упрлс?"
         android:defaultValue="false"
             />
+    <CheckBoxPreference
+            android:key="autorotate"
+            android:title="Включить поворот"
+            android:defaultValue="true"
+            />
 </PreferenceScreen>
