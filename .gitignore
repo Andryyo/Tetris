@@ -3,6 +3,8 @@
 #################
 workspace.xml
 tasks.xml
+*.iws
+*.class
 #################
 ## Eclipse
 #################
