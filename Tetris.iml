@@ -38,6 +38,27 @@
     </content>
     <orderEntry type="jdk" jdkName="Android 2.3.3 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/../../Android/SDK/extras/android/support/v4" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="file://$MODULE_DIR$/../../Android/SDK/extras/android/support/v4/src/eclair" />
+          <root url="file://$MODULE_DIR$/../../Android/SDK/extras/android/support/v4/src/froyo" />
+          <root url="file://$MODULE_DIR$/../../Android/SDK/extras/android/support/v4/src/gingerbread" />
+          <root url="file://$MODULE_DIR$/../../Android/SDK/extras/android/support/v4/src/honeycomb" />
+          <root url="file://$MODULE_DIR$/../../Android/SDK/extras/android/support/v4/src/honeycomb_mr2" />
+          <root url="file://$MODULE_DIR$/../../Android/SDK/extras/android/support/v4/src/ics" />
+          <root url="file://$MODULE_DIR$/../../Android/SDK/extras/android/support/v4/src/ics-mr1" />
+          <root url="file://$MODULE_DIR$/../../Android/SDK/extras/android/support/v4/src/java" />
+          <root url="file://$MODULE_DIR$/../../Android/SDK/extras/android/support/v4/src/jellybean" />
+          <root url="file://$MODULE_DIR$/../../Android/SDK/extras/android/support/v4/src/jellybean-mr1" />
+        </SOURCES>
+        <jarDirectory url="file://$MODULE_DIR$/../../Android/SDK/extras/android/support/v4" recursive="false" />
+      </library>
+    </orderEntry>
   </component>
 </module>
 

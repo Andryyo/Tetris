@@ -14,7 +14,9 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
+import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,10 +47,9 @@ public class Tetris_view extends View {
     public int hightscore;
 	private Rect src = new Rect(0,0,16,16);
 	private Rect dst = new Rect();
-    long down_speed = 300;
-    Context context;
-
-	
+    private long down_speed = 300;
+    private Context context;
+    private android.support.v4.view.GestureDetectorCompat mDetector;
 	public Tetris_view(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		// TODO Auto-generated constructor stub
@@ -56,8 +57,8 @@ public class Tetris_view extends View {
         init();
     }
 
-	public void init()
-	{
+	public void init()  {
+        mDetector = new GestureDetectorCompat(context,new GestureListener());
         vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
         can_vibrate = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("vibration",true);
         scaling = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("scaling",false);
@@ -137,6 +138,7 @@ public class Tetris_view extends View {
 	{
 		if ((!game_is_over)&&(!pause))
 		{
+        mDetector.onTouchEvent(me);
 		if (me.getAction()==MotionEvent.ACTION_DOWN)
 		{
 			action = true;
@@ -162,11 +164,6 @@ public class Tetris_view extends View {
 					timer.schedule(strafetask, 0, 2*down_speed);
 				} 
 			}
-			else 
-				{
-					strafetask = new MoveTask(MoveTask.MOVE_DROP);
-					timer.schedule(strafetask, 0);
-				} 
 			action = false;
 		if (can_vibrate)
 			vibrator.vibrate(20);
@@ -179,14 +176,26 @@ public class Tetris_view extends View {
 		}
 		return true;
 	}
-	
+	private class GestureListener extends GestureDetector.SimpleOnGestureListener   {
+        @Override
+        public boolean onFling(MotionEvent me1,MotionEvent me2,float vx,float vy)
+        {
+            if (me1.getY()<me2.getY())
+                main_figure.drop(pool);
+            return true;
+        }
+
+        public boolean onSingleTap(MotionEvent me) {
+
+            return true;
+        }
+    }
 	private class MoveTask extends TimerTask {
 		int move;
 		static final int MOVE_LEFT = 0;
 		static final int MOVE_ROTATE = 1;
 		static final int MOVE_RIGHT = 2;
 		static final int MOVE_DOWN = 3;
-		static final int MOVE_DROP = 4;
 		public MoveTask(int c)
 		{
 			move = c;
@@ -204,9 +213,6 @@ public class Tetris_view extends View {
 				break;
 			case MOVE_ROTATE:
 				main_figure.rotate(pool);
-				break;
-			case MOVE_DROP:
-				main_figure.drop(pool);
 				break;
 			case MOVE_DOWN:
 				{
